@@ -1,6 +1,7 @@
 package com.vastika.training.java.cms.controller;
 
 import com.vastika.training.java.cms.services.BaseService;
+import com.vastika.training.java.cms.services.impl.StaffService;
 import com.vastika.training.java.cms.services.impl.StudentService;
 import com.vastika.training.java.cms.services.impl.TeacherService;
 
@@ -11,21 +12,25 @@ public class DeriverProgram {
 
         BaseService studentService = new StudentService();
         BaseService teacherService = new TeacherService();
+        BaseService staffService = new StaffService();
 
         String continueChoice = "yes";
         while (!continueChoice.equals("no")) {
             System.out.println("Please select ");
             System.out.println("1. To view and update students");
             System.out.println("2. For Teachers:");
+            System.out.println("3. For Staff:");
             System.out.println("***************************************");
 
             Scanner studentTeacherScanner = new Scanner(System.in);
-            int studentTeacherChoice = studentTeacherScanner.nextInt();
+            int choice = studentTeacherScanner.nextInt();
 
-            if (studentTeacherChoice == 1) {
+            if (choice == 1) {
                 studentService.displayMenu();
-            } else if (studentTeacherChoice == 2) {
+            } else if (choice == 2) {
                 teacherService.displayMenu();
+            } else if (choice == 3){
+                staffService.displayMenu();
             } else {
                 System.out.println("Wrong Input Try again !!!");
             }

@@ -49,7 +49,6 @@ public class TeacherService implements BaseService {
                 break;
             default:
                 System.out.println("Invalid input please try again !!");
-                break;
         }
     }
 
