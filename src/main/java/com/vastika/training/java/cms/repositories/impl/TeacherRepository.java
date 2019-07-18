@@ -11,16 +11,16 @@ import java.util.List;
 
 public class TeacherRepository implements CrudRepository<Teacher> {
 
-    private Connection connection = DBConnector.getConnection();
-
-
     @Override
     public void insert(Teacher teacher) {
-        String sql = "INSERT INTO teacher (id, firstName, lastName, subject) VALUES (" + teacher.getId() + ", '"
-                + teacher.getFirstName() + "', '" + teacher.getLastName() + "', '" + teacher.getSubject() + "')";
-        try {
-            Statement preparedStatement = connection.createStatement();
-            preparedStatement.executeUpdate(sql);
+        try (Connection connection = DBConnector.getConnection()){
+            String sql = "INSERT INTO teacher (id, firstName, lastName, subject) VALUES (?, ?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, teacher.getId());
+            preparedStatement.setString(2, teacher.getFirstName());
+            preparedStatement.setString(3, teacher.getLastName());
+            preparedStatement.setString(4, teacher.getSubject());
+            preparedStatement.execute();
             System.out.println("Data inserted into Teacher.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -29,9 +29,9 @@ public class TeacherRepository implements CrudRepository<Teacher> {
 
     @Override
     public List<Teacher> findAll() {
-        List<Teacher> teacherList = new ArrayList<>();
-        String sql = "SELECT * FROM teacher";
-        try {
+        try (Connection connection = DBConnector.getConnection()){
+            List<Teacher> teacherList = new ArrayList<>();
+            String sql = "SELECT * FROM teacher";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
@@ -51,12 +51,11 @@ public class TeacherRepository implements CrudRepository<Teacher> {
 
     @Override
     public Teacher findById(int id) {
-        String sql = "SELECT * FROM teacher WHERE id = " + id;
-
-        try {
+        try (Connection connection = DBConnector.getConnection()){
+            String sql = "SELECT * FROM teacher WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
             ResultSet resultset = preparedStatement.executeQuery();
-
             while (resultset.next()) {
                 int teacherId = resultset.getInt("id");
                 String firstName = resultset.getString("firstName");
@@ -65,20 +64,21 @@ public class TeacherRepository implements CrudRepository<Teacher> {
                 Teacher teacher = new Teacher(teacherId, firstName, lastName, subject);
                 return teacher;
             }
-
         } catch (SQLException e) {
-
+            System.out.println(e.getMessage());
         }
         return null;
     }
 
     @Override
     public boolean update(Teacher teacher) {
-        String sql = "UPDATE teacher SET firstName = '" + teacher.getFirstName() +
-                "', lastName = '" + teacher.getLastName() + "', subject = '" + teacher.getSubject() + "' WHERE id = " +
-                teacher.getId();
-        try {
+        try (Connection connection = DBConnector.getConnection()){
+            String sql = "UPDATE teacher SET firstName = ?, lastName = ? , subject = ? WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, teacher.getFirstName());
+            preparedStatement.setString(2, teacher.getLastName());
+            preparedStatement.setString(3, teacher.getLastName());
+            preparedStatement.setInt(4, teacher.getId());
             int resultSet = preparedStatement.executeUpdate();
             return resultSet > 0 ? true : false;
         } catch (SQLException e) {
@@ -89,9 +89,8 @@ public class TeacherRepository implements CrudRepository<Teacher> {
 
     @Override
     public boolean deleteById(int id) {
-        String sql = "DELETE FROM teacher WHERE id = " + id;
-
-        try {
+        try (Connection connection = DBConnector.getConnection()){
+            String sql = "DELETE FROM teacher WHERE id = " + id;
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             int resultSet = preparedStatement.executeUpdate();
             return resultSet > 0 ? true : false;
